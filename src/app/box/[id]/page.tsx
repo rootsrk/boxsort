@@ -52,4 +52,3 @@ export async function generateMetadata({ params }: PageProps) {
     description: `View contents of box ${box.funky_name}`,
   }
 }
-

@@ -37,9 +37,7 @@ export function BoxDetailClient({ boxId }: BoxDetailClientProps) {
 
   // Get selected item from query parameter
   const selectedItemId = searchParams.get('item')
-  const selectedItem = selectedItemId 
-    ? items.find(item => item.id === selectedItemId)
-    : null
+  const selectedItem = selectedItemId ? items.find((item) => item.id === selectedItemId) : null
 
   useEffect(() => {
     async function loadBox() {
@@ -126,7 +124,10 @@ export function BoxDetailClient({ boxId }: BoxDetailClientProps) {
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
-          <Link href="/" className="text-sm text-muted-foreground hover:text-foreground mb-2 inline-block">
+          <Link
+            href="/"
+            className="text-sm text-muted-foreground hover:text-foreground mb-2 inline-block"
+          >
             ← Back to boxes
           </Link>
           <div className="flex items-center gap-2">
@@ -247,4 +248,3 @@ export function BoxDetailClient({ boxId }: BoxDetailClientProps) {
     </div>
   )
 }
-

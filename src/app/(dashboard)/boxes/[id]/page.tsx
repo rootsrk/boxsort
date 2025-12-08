@@ -14,14 +14,16 @@ export const dynamic = 'force-dynamic'
 
 function BoxDetailClientWrapper({ boxId }: { boxId: string }) {
   return (
-    <Suspense fallback={
-      <div className="container mx-auto px-4 py-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 w-64 bg-muted rounded" />
-          <div className="h-64 bg-muted rounded-lg" />
+    <Suspense
+      fallback={
+        <div className="container mx-auto px-4 py-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 w-64 bg-muted rounded" />
+            <div className="h-64 bg-muted rounded-lg" />
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <BoxDetailClient boxId={boxId} />
     </Suspense>
   )

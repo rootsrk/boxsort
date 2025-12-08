@@ -1,7 +1,5 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
 import { useState } from 'react'
 import Link from 'next/link'
 import { BoxGrid } from '@/components/boxes/box-grid'
@@ -16,7 +14,7 @@ import type { Box } from '@/lib/supabase/types'
 export default function DashboardPage() {
   const { household, loading: userLoading } = useUser()
   const { boxes, loading: boxesLoading, addBox, deleteBoxes } = useBoxes(household?.id ?? null)
-  
+
   const [selectMode, setSelectMode] = useState(false)
   const [selectedBoxes, setSelectedBoxes] = useState<string[]>([])
   const [showPrintSheet, setShowPrintSheet] = useState(false)
@@ -39,7 +37,7 @@ export default function DashboardPage() {
 
   function handleSelectBox(box: Box) {
     if (!selectMode) return
-    
+
     setSelectedBoxes((prev) =>
       prev.includes(box.id) ? prev.filter((id) => id !== box.id) : [...prev, box.id]
     )
@@ -61,7 +59,7 @@ export default function DashboardPage() {
 
   async function handleDeleteSelected() {
     if (selectedBoxes.length === 0) return
-    
+
     setDeleting(true)
     try {
       await deleteBoxes(selectedBoxes)
@@ -149,9 +147,9 @@ export default function DashboardPage() {
           ) : (
             <>
               {boxes.length > 0 && (
-              <Button variant="outline" onClick={toggleSelectMode}>
-                Bulk Edit
-              </Button>
+                <Button variant="outline" onClick={toggleSelectMode}>
+                  Bulk Edit
+                </Button>
               )}
               <AddBoxDialog onAddBox={handleAddBox} />
             </>

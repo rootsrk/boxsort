@@ -1,14 +1,19 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
@@ -49,7 +54,7 @@ export default function SignupPage() {
 
       // Check if we have an active session (email might need confirmation)
       const { data: sessionData } = await supabase.auth.getSession()
-      
+
       if (sessionData.session) {
         // Session active - create household using the database function
         const { error: householdError } = await supabase.rpc('create_household_for_user', {
@@ -61,7 +66,7 @@ export default function SignupPage() {
           console.error('Household creation error:', householdError)
           // User is created but household failed - they can create one later in settings
         }
-        
+
         router.push('/')
         router.refresh()
       } else {
@@ -81,9 +86,7 @@ export default function SignupPage() {
     <Card>
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold">Create account</CardTitle>
-        <CardDescription>
-          Sign up to start organizing your household boxes
-        </CardDescription>
+        <CardDescription>Sign up to start organizing your household boxes</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
@@ -161,4 +164,3 @@ export default function SignupPage() {
     </Card>
   )
 }
-

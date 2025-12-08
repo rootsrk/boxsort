@@ -1,7 +1,5 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
 import { useUser } from '@/lib/hooks/use-user'
 import { AvatarUpload } from '@/components/profile/avatar-upload'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -84,4 +82,3 @@ export default function ProfilePage() {
     </div>
   )
 }
-

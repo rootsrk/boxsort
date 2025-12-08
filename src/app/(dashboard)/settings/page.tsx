@@ -1,7 +1,5 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@/lib/supabase/client'
@@ -15,7 +13,7 @@ import type { User as AuthUser } from '@supabase/supabase-js'
 export default function SettingsPage() {
   const router = useRouter()
   const supabase = createBrowserClient()
-  
+
   const [authUser, setAuthUser] = useState<AuthUser | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [household, setHousehold] = useState<Household | null>(null)
@@ -33,7 +31,7 @@ export default function SettingsPage() {
       router.push('/login')
       return
     }
-    
+
     setAuthUser(authData.user)
 
     // Get user profile
@@ -118,10 +116,13 @@ export default function SettingsPage() {
 
     try {
       // Try using the database function first
-      const { data: householdId, error: rpcError } = await supabase.rpc('create_household_for_user', {
-        user_id: authUser.id,
-        household_name: newHouseholdName.trim(),
-      })
+      const { data: householdId, error: rpcError } = await supabase.rpc(
+        'create_household_for_user',
+        {
+          user_id: authUser.id,
+          household_name: newHouseholdName.trim(),
+        }
+      )
 
       if (rpcError) {
         // Fallback: try direct insert
@@ -140,10 +141,7 @@ export default function SettingsPage() {
         }
 
         // Update user's household_id
-        await supabase
-          .from('users')
-          .update({ household_id: newHousehold.id })
-          .eq('id', authUser.id)
+        await supabase.from('users').update({ household_id: newHousehold.id }).eq('id', authUser.id)
 
         setHousehold(newHousehold)
       } else {
@@ -161,7 +159,7 @@ export default function SettingsPage() {
 
       setSuccess('Household created! Redirecting...')
       setNewHouseholdName('')
-      
+
       // Redirect to home after a short delay to show success message
       setTimeout(() => {
         router.push('/')
@@ -196,7 +194,9 @@ export default function SettingsPage() {
       <h1 className="text-3xl font-bold mb-8">Settings</h1>
 
       {error && (
-        <div className="mb-4 p-3 text-sm text-destructive bg-destructive/10 rounded-md">{error}</div>
+        <div className="mb-4 p-3 text-sm text-destructive bg-destructive/10 rounded-md">
+          {error}
+        </div>
       )}
       {success && (
         <div className="mb-4 p-3 text-sm text-green-600 bg-green-100 dark:bg-green-900/20 rounded-md">
@@ -241,7 +241,9 @@ export default function SettingsPage() {
             {household ? (
               <>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Household Name</label>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Household Name
+                  </label>
                   <p className="text-lg">{household.name}</p>
                 </div>
                 <div>
@@ -268,7 +270,8 @@ export default function SettingsPage() {
             ) : (
               <div className="space-y-4">
                 <p className="text-muted-foreground">
-                  You haven&apos;t joined a household yet. Create one below or use an invite link to join an existing one.
+                  You haven&apos;t joined a household yet. Create one below or use an invite link to
+                  join an existing one.
                 </p>
                 <div>
                   <label htmlFor="householdName" className="text-sm font-medium">
@@ -282,7 +285,10 @@ export default function SettingsPage() {
                       onChange={(e) => setNewHouseholdName(e.target.value)}
                       disabled={creating}
                     />
-                    <Button onClick={createHousehold} disabled={creating || !newHouseholdName.trim()}>
+                    <Button
+                      onClick={createHousehold}
+                      disabled={creating || !newHouseholdName.trim()}
+                    >
                       {creating ? 'Creating...' : 'Create'}
                     </Button>
                   </div>
@@ -307,4 +313,3 @@ export default function SettingsPage() {
     </div>
   )
 }
-

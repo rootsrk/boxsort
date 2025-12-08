@@ -1,7 +1,5 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
 import { useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { SearchBar } from '@/components/search/search-bar'
@@ -35,10 +33,17 @@ function SearchContent() {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 text-sm text-destructive bg-destructive/10 rounded-md">{error}</div>
+        <div className="mb-4 p-3 text-sm text-destructive bg-destructive/10 rounded-md">
+          {error}
+        </div>
       )}
 
-      <SearchResults results={results} loading={loading} query={query} householdId={household?.id || null} />
+      <SearchResults
+        results={results}
+        loading={loading}
+        query={query}
+        householdId={household?.id || null}
+      />
     </div>
   )
 }
@@ -50,4 +55,3 @@ export default function SearchPage() {
     </Suspense>
   )
 }
-

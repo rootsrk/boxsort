@@ -5,12 +5,11 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
-// Required for static export - returns empty array to make route fully dynamic
+// Required for static export - must return at least one param
+// The placeholder will be pre-rendered, but actual box IDs are handled client-side
 export async function generateStaticParams() {
-  return []
+  return [{ id: 'placeholder' }]
 }
-
-export const dynamic = 'force-dynamic'
 
 function BoxDetailClientWrapper({ boxId }: { boxId: string }) {
   return (

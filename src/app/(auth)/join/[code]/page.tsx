@@ -1,9 +1,10 @@
 import { JoinHouseholdClient } from './join-household-client'
 
-// Required for static export - must return at least one param
-// We return a placeholder that will be handled client-side
+// For static export, we need to provide at least one param
+// but the actual route will be handled dynamically on the client
 export async function generateStaticParams() {
-  return [{ code: 'placeholder' }]
+  // Return empty array to skip pre-rendering, route will be handled client-side
+  return []
 }
 
 export default function JoinHouseholdPage() {

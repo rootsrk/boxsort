@@ -56,14 +56,14 @@ function DialogContent({ children, className = '' }: DialogContentProps) {
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/50" onClick={() => setOpen(false)} />
       <div
-        className={`relative z-50 w-full max-w-lg rounded-lg border bg-card p-6 shadow-lg ${className}`}
+        className={`relative z-50 w-full max-w-lg rounded-lg border bg-card p-6 shadow-lg overflow-hidden flex flex-col max-h-[90vh] ${className}`}
       >
         <button
           onClick={() => setOpen(false)}
-          className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100"
+          className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 z-10"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

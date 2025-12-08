@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { TypeSelector } from './type-selector'
+import { CameraCapture } from '@/components/ui/camera-capture'
 import { useItemImage } from '@/lib/hooks/use-item-image'
 import { isValidImageType } from '@/lib/utils/image-compress'
 import Image from 'next/image'
@@ -26,6 +27,7 @@ export function AddItemForm({ onAddItem, autoFocus, householdId }: AddItemFormPr
   const [selectedTypes, setSelectedTypes] = useState<string[]>([])
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [showCamera, setShowCamera] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const { uploadImage, uploading } = useItemImage()
@@ -45,6 +47,15 @@ export function AddItemForm({ onAddItem, autoFocus, householdId }: AddItemFormPr
       return
     }
 
+    setSelectedImageFile(file)
+    const reader = new FileReader()
+    reader.onload = () => {
+      setPreviewUrl(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  function handleCameraCapture(file: File) {
     setSelectedImageFile(file)
     const reader = new FileReader()
     reader.onload = () => {
@@ -164,15 +175,28 @@ export function AddItemForm({ onAddItem, autoFocus, householdId }: AddItemFormPr
                 </div>
               </div>
             )}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={loading || uploading}
-            >
-              {uploading ? 'Uploading...' : previewUrl ? 'Change Image' : 'Add Image (Optional)'}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={loading || uploading}
+                className="flex-1"
+              >
+                {uploading ? 'Uploading...' : previewUrl ? 'Change Image' : 'Choose from Gallery'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowCamera(true)}
+                disabled={loading || uploading}
+                className="flex-1"
+              >
+                📷 Take Photo
+              </Button>
+            </div>
             <input
               ref={fileInputRef}
               type="file"
@@ -181,6 +205,11 @@ export function AddItemForm({ onAddItem, autoFocus, householdId }: AddItemFormPr
               onChange={handleImageSelect}
               className="hidden"
               aria-label="Upload item image"
+            />
+            <CameraCapture
+              open={showCamera}
+              onOpenChange={setShowCamera}
+              onCapture={handleCameraCapture}
             />
             <p className="text-xs text-muted-foreground">JPEG, PNG, or WebP. Max 5MB.</p>
           </div>

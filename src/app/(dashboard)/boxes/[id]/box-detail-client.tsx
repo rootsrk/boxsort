@@ -33,7 +33,7 @@ export function BoxDetailClient({ boxId }: BoxDetailClientProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isAddItemExpanded, setIsAddItemExpanded] = useState(false)
 
-  const { items, loading: itemsLoading, addItem, updateItem, deleteItem } = useItems(boxId)
+  const { items, loading: itemsLoading, addItem, deleteItem } = useItems(boxId)
   const [householdId, setHouseholdId] = useState<string | null>(null)
 
   // Get selected item from query parameter
@@ -183,7 +183,14 @@ export function BoxDetailClient({ boxId }: BoxDetailClientProps) {
         <div className="md:col-span-2 space-y-6">
           {selectedItem && householdId ? (
             <div className="space-y-4">
-              <ItemDetailView item={selectedItem} householdId={householdId} />
+              <ItemDetailView
+                item={selectedItem}
+                householdId={householdId}
+                boxId={boxId}
+                onDelete={async (id: string) => {
+                  await deleteItem(id)
+                }}
+              />
               <div className="flex justify-end">
                 <Button
                   variant="outline"
@@ -230,7 +237,7 @@ export function BoxDetailClient({ boxId }: BoxDetailClientProps) {
                   </div>
                 </CardHeader>
                 <div
-                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  className={`overflow-hidden transition-all duration-300 ease-in-out mt-4 ${
                     isAddItemExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
                   }`}
                 >

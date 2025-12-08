@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import { CameraCapture } from '@/components/ui/camera-capture'
 import { useItemImage } from '@/lib/hooks/use-item-image'
 import { isValidImageType } from '@/lib/utils/image-compress'
 import Image from 'next/image'
@@ -21,6 +22,7 @@ export function ItemImageUpload({
 }: ItemImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [showCamera, setShowCamera] = useState(false)
   const { uploadImage, getSignedUrl, deleteImage, uploading, error } = useItemImage()
   const [displayUrl, setDisplayUrl] = useState<string | null>(null)
 
@@ -42,6 +44,10 @@ export function ItemImageUpload({
       return
     }
 
+    await handleFileUpload(file)
+  }
+
+  async function handleFileUpload(file: File) {
     // Create preview
     const reader = new FileReader()
     reader.onload = () => {
@@ -61,6 +67,10 @@ export function ItemImageUpload({
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
+  }
+
+  async function handleCameraCapture(file: File) {
+    await handleFileUpload(file)
   }
 
   function handleClick() {
@@ -112,8 +122,19 @@ export function ItemImageUpload({
           onClick={handleClick}
           disabled={uploading}
           aria-label="Upload item image"
+          className="flex-1"
         >
-          {uploading ? 'Uploading...' : imageUrl ? 'Change Image' : 'Add Image'}
+          {uploading ? 'Uploading...' : imageUrl ? 'Change Image' : 'Choose from Gallery'}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setShowCamera(true)}
+          disabled={uploading}
+          className="flex-1"
+        >
+          📷 Take Photo
         </Button>
         {imageUrl && (
           <Button
@@ -142,6 +163,12 @@ export function ItemImageUpload({
         onChange={handleFileSelect}
         className="hidden"
         aria-label="Upload item image"
+      />
+
+      <CameraCapture
+        open={showCamera}
+        onOpenChange={setShowCamera}
+        onCapture={handleCameraCapture}
       />
 
       {error && (

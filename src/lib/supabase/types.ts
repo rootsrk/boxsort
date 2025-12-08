@@ -39,6 +39,7 @@ export interface Database {
           id: string
           household_id: string | null
           display_name: string
+          avatar_url: string | null
           created_at: string
           updated_at: string
         }
@@ -46,6 +47,7 @@ export interface Database {
           id: string
           household_id?: string | null
           display_name: string
+          avatar_url?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -53,6 +55,7 @@ export interface Database {
           id?: string
           household_id?: string | null
           display_name?: string
+          avatar_url?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -102,6 +105,7 @@ export interface Database {
           box_id: string
           name: string
           description: string | null
+          image_url: string | null
           created_at: string
           updated_at: string
         }
@@ -110,6 +114,7 @@ export interface Database {
           box_id: string
           name: string
           description?: string | null
+          image_url?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -118,6 +123,7 @@ export interface Database {
           box_id?: string
           name?: string
           description?: string | null
+          image_url?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -126,6 +132,71 @@ export interface Database {
             foreignKeyName: 'items_box_id_fkey'
             columns: ['box_id']
             referencedRelation: 'boxes'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      types: {
+        Row: {
+          id: string
+          household_id: string
+          name: string
+          color: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          household_id: string
+          name: string
+          color?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          household_id?: string
+          name?: string
+          color?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'types_household_id_fkey'
+            columns: ['household_id']
+            referencedRelation: 'households'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      item_types: {
+        Row: {
+          item_id: string
+          type_id: string
+          created_at: string
+        }
+        Insert: {
+          item_id: string
+          type_id: string
+          created_at?: string
+        }
+        Update: {
+          item_id?: string
+          type_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'item_types_item_id_fkey'
+            columns: ['item_id']
+            referencedRelation: 'items'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'item_types_type_id_fkey'
+            columns: ['type_id']
+            referencedRelation: 'types'
             referencedColumns: ['id']
           }
         ]
@@ -143,8 +214,10 @@ export interface Database {
           item_id: string
           item_name: string
           item_description: string | null
+          item_image_url: string | null
           box_id: string
           box_funky_name: string
+          types: Json
         }[]
       }
       regenerate_invite_code: {
@@ -181,7 +254,12 @@ export type Household = Database['public']['Tables']['households']['Row']
 export type User = Database['public']['Tables']['users']['Row']
 export type Box = Database['public']['Tables']['boxes']['Row']
 export type Item = Database['public']['Tables']['items']['Row']
+export type Type = Database['public']['Tables']['types']['Row']
+export type ItemType = Database['public']['Tables']['item_types']['Row']
 
 export type BoxWithItems = Box & { items: Item[]; item_count: number }
 export type SearchResult = Database['public']['Functions']['search_items']['Returns'][number]
 
+// Extended types with relationships
+export type ItemWithTypes = Item & { types: Type[] }
+export type UserWithAvatar = User & { avatar_url: string | null }

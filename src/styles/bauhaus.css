@@ -1,0 +1,222 @@
+/* Bauhaus Design System */
+
+:root {
+  /* Bauhaus Primary Colors */
+  --bauhaus-red: #e53935;
+  --bauhaus-blue: #1e88e5;
+  --bauhaus-yellow: #fdd835;
+  --bauhaus-black: #212121;
+  --bauhaus-white: #fafafa;
+
+  /* Extended Palette */
+  --bauhaus-green: #43a047;
+  --bauhaus-purple: #8e24aa;
+  --bauhaus-orange: #fb8c00;
+  --bauhaus-cyan: #00acc1;
+  --bauhaus-lime: #7cb342;
+  --bauhaus-deep-orange: #f4511e;
+
+  /* Geometric Patterns */
+  --bauhaus-pattern-size: 100px;
+  --bauhaus-border-width: 3px;
+
+  /* Typography */
+  --bauhaus-font-weight-light: 300;
+  --bauhaus-font-weight-bold: 700;
+
+  /* Spacing */
+  --bauhaus-spacing-unit: 8px;
+}
+
+/* Geometric Background Patterns */
+.bauhaus-pattern {
+  background-image:
+    linear-gradient(45deg, var(--bauhaus-red) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--bauhaus-red) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--bauhaus-blue) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--bauhaus-blue) 75%);
+  background-size: var(--bauhaus-pattern-size) var(--bauhaus-pattern-size);
+  background-position:
+    0 0,
+    0 calc(var(--bauhaus-pattern-size) / 2),
+    calc(var(--bauhaus-pattern-size) / 2) calc(-1 * var(--bauhaus-pattern-size) / 2),
+    calc(-1 * var(--bauhaus-pattern-size) / 2) 0;
+}
+
+.bauhaus-pattern-circles {
+  background-image:
+    radial-gradient(circle at 25% 25%, var(--bauhaus-yellow) 3px, transparent 3px),
+    radial-gradient(circle at 75% 75%, var(--bauhaus-blue) 3px, transparent 3px);
+  background-size: 60px 60px;
+  background-position:
+    0 0,
+    30px 30px;
+}
+
+.bauhaus-pattern-triangles {
+  background-image:
+    linear-gradient(
+      30deg,
+      var(--bauhaus-red) 12%,
+      transparent 12.5%,
+      transparent 87%,
+      var(--bauhaus-red) 87.5%,
+      var(--bauhaus-red)
+    ),
+    linear-gradient(
+      150deg,
+      var(--bauhaus-red) 12%,
+      transparent 12.5%,
+      transparent 87%,
+      var(--bauhaus-red) 87.5%,
+      var(--bauhaus-red)
+    ),
+    linear-gradient(
+      30deg,
+      var(--bauhaus-red) 12%,
+      transparent 12.5%,
+      transparent 87%,
+      var(--bauhaus-red) 87.5%,
+      var(--bauhaus-red)
+    ),
+    linear-gradient(
+      150deg,
+      var(--bauhaus-red) 12%,
+      transparent 12.5%,
+      transparent 87%,
+      var(--bauhaus-red) 87.5%,
+      var(--bauhaus-red)
+    );
+  background-size: 80px 140px;
+  background-position:
+    0 0,
+    0 0,
+    40px 70px,
+    40px 70px;
+}
+
+/* Bold Borders */
+.bauhaus-border {
+  border: var(--bauhaus-border-width) solid var(--bauhaus-black);
+}
+
+.bauhaus-border-colored {
+  border: var(--bauhaus-border-width) solid var(--bauhaus-red);
+}
+
+/* Color Blocks */
+.bauhaus-color-block {
+  background-color: var(--bauhaus-yellow);
+  color: var(--bauhaus-black);
+  padding: calc(var(--bauhaus-spacing-unit) * 2);
+}
+
+.bauhaus-color-block-red {
+  background-color: var(--bauhaus-red);
+  color: var(--bauhaus-white);
+}
+
+.bauhaus-color-block-blue {
+  background-color: var(--bauhaus-blue);
+  color: var(--bauhaus-white);
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .bauhaus-animate,
+  .bauhaus-animate * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Hover Effects */
+.bauhaus-hover-scale {
+  transition: transform 0.2s ease;
+}
+
+.bauhaus-hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.bauhaus-hover-rotate {
+  transition: transform 0.3s ease;
+}
+
+.bauhaus-hover-rotate:hover {
+  transform: rotate(5deg);
+}
+
+/* Geometric Shapes */
+.bauhaus-triangle {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 35px solid var(--bauhaus-red);
+}
+
+.bauhaus-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--bauhaus-blue);
+}
+
+.bauhaus-square {
+  width: 40px;
+  height: 40px;
+  background-color: var(--bauhaus-yellow);
+}
+
+/* Typography */
+.bauhaus-heading {
+  font-weight: var(--bauhaus-font-weight-bold);
+  letter-spacing: -0.02em;
+}
+
+.bauhaus-text-light {
+  font-weight: var(--bauhaus-font-weight-light);
+}
+
+/* Asymmetric Layouts */
+.bauhaus-grid-asymmetric {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: calc(var(--bauhaus-spacing-unit) * 2);
+}
+
+@media (max-width: 768px) {
+  .bauhaus-grid-asymmetric {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Konami Code Animation */
+@keyframes bauhaus-explosion {
+  0% {
+    transform: scale(1);
+    filter: hue-rotate(0deg);
+  }
+  25% {
+    transform: scale(1.05) rotate(5deg);
+    filter: hue-rotate(90deg);
+  }
+  50% {
+    transform: scale(0.95) rotate(-5deg);
+    filter: hue-rotate(180deg);
+  }
+  75% {
+    transform: scale(1.02) rotate(3deg);
+    filter: hue-rotate(270deg);
+  }
+  100% {
+    transform: scale(1);
+    filter: hue-rotate(360deg);
+  }
+}
+
+.bauhaus-explosion {
+  animation: bauhaus-explosion 0.5s ease-out;
+}

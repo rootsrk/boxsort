@@ -13,7 +13,7 @@ export function Nav() {
   const pathname = usePathname()
 
   return (
-    <nav className="hidden md:flex flex-col gap-1 p-4 border-r min-w-[200px]">
+    <nav className="hidden md:flex flex-col gap-1 p-4 border-r border-border min-w-[200px]">
       {navItems.map((item) => {
         const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
         return (

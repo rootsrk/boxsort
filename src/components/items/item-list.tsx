@@ -1,30 +1,36 @@
 'use client'
 
-import { ItemRow } from './item-row'
+import { ItemCard } from './item-card'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { Item } from '@/lib/supabase/types'
+import type { ItemWithTypes } from '@/lib/supabase/types'
 
 interface ItemListProps {
-  items: Item[]
+  items: ItemWithTypes[]
   loading?: boolean
-  onUpdateItem: (id: string, name: string, description?: string) => Promise<unknown>
-  onDeleteItem: (id: string) => Promise<unknown>
+  boxId: string
+  householdId: string
+  onDeleteItem?: (id: string) => Promise<void>
   emptyMessage?: string
 }
 
 export function ItemList({
   items,
   loading,
-  onUpdateItem,
+  boxId,
+  householdId,
   onDeleteItem,
   emptyMessage = 'No items in this box yet.',
 }: ItemListProps) {
   if (loading) {
     return (
-      <div className="space-y-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="flex items-center gap-2 py-2 px-3 border-b">
-            <Skeleton className="h-5 flex-1" />
+          <div key={i} className="border rounded-lg overflow-hidden">
+            <Skeleton className="aspect-square w-full" />
+            <div className="p-4 space-y-2">
+              <Skeleton className="h-5 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
           </div>
         ))}
       </div>
@@ -41,9 +47,15 @@ export function ItemList({
   }
 
   return (
-    <div className="border rounded-md">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {items.map((item) => (
-        <ItemRow key={item.id} item={item} onUpdate={onUpdateItem} onDelete={onDeleteItem} />
+        <ItemCard
+          key={item.id}
+          item={item}
+          boxId={boxId}
+          householdId={householdId}
+          onDelete={onDeleteItem}
+        />
       ))}
     </div>
   )

@@ -5,9 +5,10 @@ export const dynamic = 'force-dynamic'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AvatarUpload } from '@/components/profile/avatar-upload'
 import type { Household, User } from '@/lib/supabase/types'
 import type { User as AuthUser } from '@supabase/supabase-js'
 
@@ -26,45 +27,46 @@ export default function SettingsPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
-  useEffect(() => {
-    async function loadData() {
-      const { data: authData } = await supabase.auth.getUser()
-      if (!authData.user) {
-        router.push('/login')
-        return
-      }
-      
-      setAuthUser(authData.user)
+  async function loadData() {
+    const { data: authData } = await supabase.auth.getUser()
+    if (!authData.user) {
+      router.push('/login')
+      return
+    }
+    
+    setAuthUser(authData.user)
 
-      // Get user profile
-      const { data: userData } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', authData.user.id)
-        .single()
+    // Get user profile
+    const { data: userData } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', authData.user.id)
+      .single()
 
-      if (userData) {
-        setUser(userData)
+    if (userData) {
+      setUser(userData)
 
-        // Get household
-        if (userData.household_id) {
-          const { data: householdData } = await supabase
-            .from('households')
-            .select('*')
-            .eq('id', userData.household_id)
-            .single()
+      // Get household
+      if (userData.household_id) {
+        const { data: householdData } = await supabase
+          .from('households')
+          .select('*')
+          .eq('id', userData.household_id)
+          .single()
 
-          if (householdData) {
-            setHousehold(householdData)
-          }
+        if (householdData) {
+          setHousehold(householdData)
         }
       }
-
-      setLoading(false)
     }
 
+    setLoading(false)
+  }
+
+  useEffect(() => {
     loadData()
-  }, [supabase, router])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const inviteUrl = household
     ? `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/join/${household.invite_code}`
@@ -210,6 +212,18 @@ export default function SettingsPage() {
             <CardDescription>Your account information</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {authUser && user && (
+              <AvatarUpload
+                user={authUser}
+                displayName={user.display_name}
+                currentAvatarUrl={user.avatar_url}
+                onUploadComplete={() => {
+                  // Refresh user data
+                  router.refresh()
+                  loadData()
+                }}
+              />
+            )}
             <div>
               <label className="text-sm font-medium text-muted-foreground">Display Name</label>
               <p className="text-lg">{user?.display_name}</p>

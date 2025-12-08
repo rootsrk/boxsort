@@ -2,9 +2,12 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { UserMenu } from './user-menu'
+import { useUser } from '@/lib/hooks/use-user'
+import { useKonami } from '@/lib/hooks/use-konami'
 
 interface HeaderProps {
   showSearch?: boolean
@@ -13,6 +16,20 @@ interface HeaderProps {
 export function Header({ showSearch = true }: HeaderProps) {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
+  const [logoSpin, setLogoSpin] = useState(false)
+  const clickCountRef = useRef(0)
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const { user } = useUser()
+  const konamiActivated = useKonami(() => {
+    // Konami code easter egg - show geometric explosion animation
+    document.body.style.animation = 'none'
+    setTimeout(() => {
+      document.body.style.animation = 'bauhaus-explosion 0.5s ease-out'
+      setTimeout(() => {
+        document.body.style.animation = ''
+      }, 500)
+    }, 10)
+  })
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
@@ -21,11 +38,57 @@ export function Header({ showSearch = true }: HeaderProps) {
     }
   }
 
+  function handleLogoClick() {
+    clickCountRef.current += 1
+
+    // Reset counter after 1 second
+    if (clickTimeoutRef.current) {
+      clearTimeout(clickTimeoutRef.current)
+    }
+
+    clickTimeoutRef.current = setTimeout(() => {
+      clickCountRef.current = 0
+    }, 1000)
+
+    // If clicked 3 times, spin the logo
+    if (clickCountRef.current >= 3) {
+      setLogoSpin(true)
+      setTimeout(() => {
+        setLogoSpin(false)
+        clickCountRef.current = 0
+      }, 1000)
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current)
+      }
+    }
+  }, [])
+
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-40 border-b-2 border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-          <span className="text-2xl">📦</span>
+        <Link
+          href="/"
+          className="flex items-center gap-2 font-bold text-xl"
+          onClick={handleLogoClick}
+        >
+          <span
+            className={`text-2xl transition-transform duration-1000 ${logoSpin ? 'rotate-360' : ''}`}
+            style={
+              logoSpin
+                ? {
+                    filter:
+                      'drop-shadow(0 0 8px var(--bauhaus-red)) drop-shadow(0 0 8px var(--bauhaus-blue))',
+                  }
+                : {}
+            }
+          >
+            📦
+          </span>
           <span className="hidden sm:inline">BoxSort</span>
         </Link>
 
@@ -59,27 +122,30 @@ export function Header({ showSearch = true }: HeaderProps) {
         )}
 
         <nav className="flex items-center gap-2">
-          <Link href="/settings">
-            <Button variant="ghost" size="icon" title="Settings">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-            </Button>
-          </Link>
+          {user ? (
+            <UserMenu displayName={user.display_name} avatarUrl={user.avatar_url} />
+          ) : (
+            <Link href="/settings">
+              <Button variant="ghost" size="icon" title="Settings">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </Button>
+            </Link>
+          )}
         </nav>
       </div>
     </header>
   )
 }
-

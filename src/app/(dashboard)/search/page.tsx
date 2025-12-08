@@ -7,11 +7,13 @@ import { useSearchParams } from 'next/navigation'
 import { SearchBar } from '@/components/search/search-bar'
 import { SearchResults } from '@/components/search/search-results'
 import { useSearch } from '@/lib/hooks/use-search'
+import { useUser } from '@/lib/hooks/use-user'
 
 function SearchContent() {
   const searchParams = useSearchParams()
   const initialQuery = searchParams.get('q') || ''
   const { results, loading, error, search, query } = useSearch()
+  const { household } = useUser()
 
   useEffect(() => {
     if (initialQuery) {
@@ -36,7 +38,7 @@ function SearchContent() {
         <div className="mb-4 p-3 text-sm text-destructive bg-destructive/10 rounded-md">{error}</div>
       )}
 
-      <SearchResults results={results} loading={loading} query={query} />
+      <SearchResults results={results} loading={loading} query={query} householdId={household?.id || null} />
     </div>
   )
 }

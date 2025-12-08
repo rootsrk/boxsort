@@ -31,6 +31,7 @@ export default function BoxDetailPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const { items, loading: itemsLoading, addItem, updateItem, deleteItem } = useItems(boxId)
+  const [householdId, setHouseholdId] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadBox() {
@@ -44,6 +45,7 @@ export default function BoxDetailPage() {
         setError(fetchError.message)
       } else {
         setBox(data)
+        setHouseholdId(data?.household_id || null)
       }
       setLoading(false)
     }
@@ -174,12 +176,15 @@ export default function BoxDetailPage() {
               <CardTitle>Items</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <AddItemForm onAddItem={addItem} autoFocus />
+              <AddItemForm onAddItem={addItem} autoFocus householdId={householdId} />
               <ItemList
                 items={items}
                 loading={itemsLoading}
-                onUpdateItem={updateItem}
-                onDeleteItem={deleteItem}
+                boxId={boxId}
+                householdId={householdId || ''}
+                onDeleteItem={async (id: string) => {
+                  await deleteItem(id)
+                }}
               />
             </CardContent>
           </Card>

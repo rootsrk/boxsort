@@ -4,7 +4,7 @@ const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className = '', ...props }, ref) => (
     <div
       ref={ref}
-      className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`}
+      className={`rounded-lg border-2 border-border bg-card text-card-foreground shadow-sm ${className}`}
       {...props}
     />
   )
@@ -51,4 +51,3 @@ const CardFooter = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
 CardFooter.displayName = 'CardFooter'
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
-

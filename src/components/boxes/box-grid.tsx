@@ -2,6 +2,7 @@
 
 import { BoxCard } from './box-card'
 import { SkeletonGrid } from '@/components/ui/skeleton'
+import { StaggeredList } from '@/components/ui/staggered-list'
 import type { Box } from '@/lib/supabase/types'
 
 interface BoxGridProps {
@@ -33,7 +34,11 @@ export function BoxGrid({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <StaggeredList
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+      staggerDelay={0.05}
+      direction="up"
+    >
       {boxes.map((box) => (
         <BoxCard
           key={box.id}
@@ -42,7 +47,7 @@ export function BoxGrid({
           onSelect={onSelectBox}
         />
       ))}
-    </div>
+    </StaggeredList>
   )
 }
 

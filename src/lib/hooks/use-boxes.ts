@@ -85,7 +85,13 @@ export function useBoxes(householdId: string | null): UseBoxesReturn {
         (payload) => {
           if (payload.eventType === 'INSERT') {
             const newBox = payload.new as Box
-            setBoxes((prev) => [{ ...newBox, item_count: 0 }, ...prev])
+            setBoxes((prev) => {
+              // Check if box already exists (from optimistic update)
+              if (prev.some((b) => b.id === newBox.id)) {
+                return prev
+              }
+              return [{ ...newBox, item_count: 0 }, ...prev]
+            })
           } else if (payload.eventType === 'UPDATE') {
             const updatedBox = payload.new as Box
             setBoxes((prev) =>
@@ -102,7 +108,8 @@ export function useBoxes(householdId: string | null): UseBoxesReturn {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [householdId, supabase, loadBoxes])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [householdId, supabase])
 
   const addBox = async (funkyName: string): Promise<Box | null> => {
     if (!householdId) return null

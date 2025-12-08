@@ -1,0 +1,32 @@
+# box sorter Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2025-12-08
+
+## Active Technologies
+- TypeScript 5.x, Next.js 16+ (App Router) + @supabase/ssr, @supabase/supabase-js, qrcode.react, Tailwind CSS, Framer Motion (animations) (002-profile-media-bauhaus)
+- Supabase (PostgreSQL + Storage buckets for images) (002-profile-media-bauhaus)
+
+- TypeScript 5.x (strict mode) + @supabase/ssr, @supabase/supabase-js, qrcode.react, Tailwind CSS (001-core-mvp)
+
+## Project Structure
+
+```text
+src/
+tests/
+```
+
+## Commands
+
+npm test && npm run lint
+
+## Code Style
+
+TypeScript 5.x (strict mode): Follow standard conventions
+
+## Recent Changes
+- 002-profile-media-bauhaus: Added TypeScript 5.x, Next.js 16+ (App Router) + @supabase/ssr, @supabase/supabase-js, qrcode.react, Tailwind CSS, Framer Motion (animations)
+
+- 001-core-mvp: Added TypeScript 5.x (strict mode) + @supabase/ssr, @supabase/supabase-js, qrcode.react, Tailwind CSS
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->

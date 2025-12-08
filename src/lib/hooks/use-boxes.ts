@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { createBrowserClient } from '@/lib/supabase/client'
 import type { Box } from '@/lib/supabase/types'
 
@@ -23,7 +23,8 @@ export function useBoxes(householdId: string | null): UseBoxesReturn {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const supabase = createBrowserClient()
+  // Memoize supabase client to prevent unnecessary re-renders
+  const supabase = useMemo(() => createBrowserClient(), [])
 
   const loadBoxes = useCallback(async () => {
     if (!householdId) {
@@ -87,9 +88,14 @@ export function useBoxes(householdId: string | null): UseBoxesReturn {
             const newBox = payload.new as Box
             setBoxes((prev) => {
               // Check if box already exists (from optimistic update)
-              if (prev.some((b) => b.id === newBox.id)) {
-                return prev
+              const existingIndex = prev.findIndex((b) => b.id === newBox.id)
+              if (existingIndex !== -1) {
+                // Box already exists, update it in place preserving item_count
+                const updated = [...prev]
+                updated[existingIndex] = { ...newBox, item_count: prev[existingIndex].item_count }
+                return updated
               }
+              // Add new box to the front, preserving all existing boxes
               return [{ ...newBox, item_count: 0 }, ...prev]
             })
           } else if (payload.eventType === 'UPDATE') {
@@ -108,6 +114,7 @@ export function useBoxes(householdId: string | null): UseBoxesReturn {
     return () => {
       supabase.removeChannel(channel)
     }
+    // Only depend on householdId and supabase - loadBoxes is stable due to memoized supabase
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [householdId, supabase])
 
@@ -128,8 +135,18 @@ export function useBoxes(householdId: string | null): UseBoxesReturn {
     }
 
     // Optimistic update - add to local state immediately
+    // The realtime subscription will handle deduplication if it fires
     if (data) {
-      setBoxes((prev) => [{ ...data, item_count: 0 }, ...prev])
+      setBoxes((prev) => {
+        // Double-check the box doesn't already exist (from realtime subscription)
+        const exists = prev.some((b) => b.id === data.id)
+        if (exists) {
+          // Box already exists, just return current state
+          return prev
+        }
+        // Add new box to the front
+        return [{ ...data, item_count: 0 }, ...prev]
+      })
     }
 
     return data

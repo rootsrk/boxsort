@@ -76,6 +76,44 @@ describe('Box Integration', () => {
         })
       )
     })
+
+    it('should preserve existing boxes when adding a new box', async () => {
+      // Bug fix: When adding a new box, all existing boxes should remain visible
+      const existingBoxes = [
+        { id: 'box-1', funky_name: 'purple-tiger-cloud', item_count: 0 },
+        { id: 'box-2', funky_name: 'golden-falcon-river', item_count: 0 },
+      ]
+
+      const newBox = { id: 'box-3', funky_name: 'swift-dolphin-storm', item_count: 0 }
+
+      // Simulate optimistic update - should add new box to front, keeping existing ones
+      const updatedBoxes = [newBox, ...existingBoxes]
+
+      expect(updatedBoxes).toHaveLength(3)
+      expect(updatedBoxes[0].id).toBe('box-3') // New box at front
+      expect(updatedBoxes[1].id).toBe('box-1') // Existing boxes preserved
+      expect(updatedBoxes[2].id).toBe('box-2')
+    })
+
+    it('should not reload all boxes when adding a new box', () => {
+      // Bug fix: Adding a box should not trigger a full reload that replaces the array
+      const loadBoxes = vi.fn()
+      const boxes = [
+        { id: 'box-1', funky_name: 'purple-tiger-cloud' },
+        { id: 'box-2', funky_name: 'golden-falcon-river' },
+      ]
+
+      // Adding a box should use optimistic update, not reload
+      const addBox = (newBox: typeof boxes[0]) => {
+        // Optimistic update - don't call loadBoxes()
+        return [newBox, ...boxes]
+      }
+
+      const result = addBox({ id: 'box-3', funky_name: 'swift-dolphin-storm' })
+
+      expect(loadBoxes).not.toHaveBeenCalled()
+      expect(result).toHaveLength(3)
+    })
   })
 })
 

@@ -28,9 +28,8 @@ jobs:
   # Build job
   build:
     runs-on: ubuntu-latest
-    # Uncomment the line below if you're using environment secrets for github-pages
-    # instead of repository secrets. If using repository secrets, leave it commented.
-    # environment: github-pages
+    # Access environment secrets from github-pages environment
+    environment: github-pages
     steps:
       - name: Checkout
         uses: actions/checkout@v4

@@ -39,9 +39,10 @@ export function ItemList({
 
   if (items.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        <p>{emptyMessage}</p>
-        <p className="text-sm mt-1">Add items using the form above.</p>
+      <div className="text-center py-12 text-muted-foreground">
+        <div className="text-4xl mb-3">📦</div>
+        <p className="text-base">{emptyMessage}</p>
+        <p className="text-sm mt-2">Use the form above to add your first item.</p>
       </div>
     )
   }

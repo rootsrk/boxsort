@@ -31,6 +31,7 @@ export function BoxDetailClient({ boxId }: BoxDetailClientProps) {
   const [regenerating, setRegenerating] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isAddItemExpanded, setIsAddItemExpanded] = useState(false)
 
   const { items, loading: itemsLoading, addItem, updateItem, deleteItem } = useItems(boxId)
   const [householdId, setHouseholdId] = useState<string | null>(null)
@@ -179,7 +180,7 @@ export function BoxDetailClient({ boxId }: BoxDetailClientProps) {
 
       <div className="grid md:grid-cols-3 gap-8">
         {/* Items Section */}
-        <div className="md:col-span-2 space-y-4">
+        <div className="md:col-span-2 space-y-6">
           {selectedItem && householdId ? (
             <div className="space-y-4">
               <ItemDetailView item={selectedItem} householdId={householdId} />
@@ -193,23 +194,86 @@ export function BoxDetailClient({ boxId }: BoxDetailClientProps) {
               </div>
             </div>
           ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Items</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <AddItemForm onAddItem={addItem} autoFocus householdId={householdId} />
-                <ItemList
-                  items={items}
-                  loading={itemsLoading}
-                  boxId={boxId}
-                  householdId={householdId || ''}
-                  onDeleteItem={async (id: string) => {
-                    await deleteItem(id)
-                  }}
-                />
-              </CardContent>
-            </Card>
+            <>
+              {/* Add Item Form - Collapsible Card */}
+              <Card>
+                <CardHeader
+                  className="cursor-pointer"
+                  onClick={() => setIsAddItemExpanded(!isAddItemExpanded)}
+                >
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Add New Item</CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setIsAddItemExpanded(!isAddItemExpanded)
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className={`transition-transform ${isAddItemExpanded ? 'rotate-180' : ''}`}
+                      >
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
+                    </Button>
+                  </div>
+                </CardHeader>
+                <div
+                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                    isAddItemExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+                  }`}
+                >
+                  {isAddItemExpanded && (
+                    <CardContent>
+                      <AddItemForm
+                        onAddItem={async (...args) => {
+                          const result = await addItem(...args)
+                          // Collapse after successful add
+                          setIsAddItemExpanded(false)
+                          return result
+                        }}
+                        autoFocus={isAddItemExpanded}
+                        householdId={householdId}
+                      />
+                    </CardContent>
+                  )}
+                </div>
+              </Card>
+
+              {/* Items List - Separate Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    Items{' '}
+                    {items.length > 0 && (
+                      <span className="text-muted-foreground font-normal">({items.length})</span>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ItemList
+                    items={items}
+                    loading={itemsLoading}
+                    boxId={boxId}
+                    householdId={householdId || ''}
+                    onDeleteItem={async (id: string) => {
+                      await deleteItem(id)
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            </>
           )}
         </div>
 

@@ -1,18 +1,16 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
-interface JoinHouseholdClientProps {
-  code: string
-}
-
-export function JoinHouseholdClient({ code }: JoinHouseholdClientProps) {
+export function JoinHouseholdClient() {
+  const params = useParams()
+  const code = params.code as string
   const router = useRouter()
   const supabase = createBrowserClient()
 

@@ -1,17 +1,11 @@
 import { JoinHouseholdClient } from './join-household-client'
 
-interface PageProps {
-  params: Promise<{ code: string }>
-}
-
-// Required for static export - returns empty array to make route fully dynamic
+// Required for static export - must return at least one param
+// We return a placeholder that will be handled client-side
 export async function generateStaticParams() {
-  return []
+  return [{ code: 'placeholder' }]
 }
 
-export const dynamic = 'force-dynamic'
-
-export default async function JoinHouseholdPage({ params }: PageProps) {
-  const { code } = await params
-  return <JoinHouseholdClient code={code} />
+export default function JoinHouseholdPage() {
+  return <JoinHouseholdClient />
 }

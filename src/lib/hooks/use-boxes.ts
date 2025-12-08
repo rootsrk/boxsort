@@ -16,6 +16,7 @@ interface UseBoxesReturn {
   addBox: (funkyName: string) => Promise<Box | null>
   updateBox: (id: string, funkyName: string) => Promise<Box | null>
   deleteBox: (id: string) => Promise<boolean>
+  deleteBoxes: (ids: string[]) => Promise<boolean>
 }
 
 export function useBoxes(householdId: string | null): UseBoxesReturn {
@@ -69,8 +70,13 @@ export function useBoxes(householdId: string | null): UseBoxesReturn {
 
   // Set up realtime subscription
   useEffect(() => {
-    if (!householdId) return
+    if (!householdId) {
+      setBoxes([])
+      setLoading(false)
+      return
+    }
 
+    // Load boxes on initial mount
     loadBoxes()
 
     const channel = supabase
@@ -88,14 +94,12 @@ export function useBoxes(householdId: string | null): UseBoxesReturn {
             const newBox = payload.new as Box
             setBoxes((prev) => {
               // Check if box already exists (from optimistic update)
-              const existingIndex = prev.findIndex((b) => b.id === newBox.id)
-              if (existingIndex !== -1) {
-                // Box already exists, update it in place preserving item_count
-                const updated = [...prev]
-                updated[existingIndex] = { ...newBox, item_count: prev[existingIndex].item_count }
-                return updated
+              const exists = prev.some((b) => b.id === newBox.id)
+              if (exists) {
+                // Box already exists, just return current state
+                return prev
               }
-              // Add new box to the front, preserving all existing boxes
+              // Add new box to the front of the array
               return [{ ...newBox, item_count: 0 }, ...prev]
             })
           } else if (payload.eventType === 'UPDATE') {
@@ -114,9 +118,7 @@ export function useBoxes(householdId: string | null): UseBoxesReturn {
     return () => {
       supabase.removeChannel(channel)
     }
-    // Only depend on householdId and supabase - loadBoxes is stable due to memoized supabase
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [householdId, supabase])
+  }, [householdId, supabase, loadBoxes])
 
   const addBox = async (funkyName: string): Promise<Box | null> => {
     if (!householdId) return null
@@ -134,14 +136,12 @@ export function useBoxes(householdId: string | null): UseBoxesReturn {
       throw new Error(insertError.message)
     }
 
-    // Optimistic update - add to local state immediately
-    // The realtime subscription will handle deduplication if it fires
+    // Optimistic update - add new box to the front of the array
     if (data) {
       setBoxes((prev) => {
-        // Double-check the box doesn't already exist (from realtime subscription)
+        // Check if box already exists (shouldn't happen, but be safe)
         const exists = prev.some((b) => b.id === data.id)
         if (exists) {
-          // Box already exists, just return current state
           return prev
         }
         // Add new box to the front
@@ -182,14 +182,38 @@ export function useBoxes(householdId: string | null): UseBoxesReturn {
     return true
   }
 
+  const deleteBoxes = async (ids: string[]): Promise<boolean> => {
+    if (ids.length === 0) {
+      return true
+    }
+
+    // Optimistic update - remove from local state immediately
+    setBoxes((prev) => prev.filter((b) => !ids.includes(b.id)))
+
+    const { error: deleteError } = await supabase.from('boxes').delete().in('id', ids)
+
+    if (deleteError) {
+      // Revert on error
+      loadBoxes()
+      throw new Error(deleteError.message)
+    }
+
+    return true
+  }
+
+  const refresh = useCallback(async () => {
+    await loadBoxes()
+  }, [loadBoxes])
+
   return {
     boxes,
     loading,
     error,
-    refresh: loadBoxes,
+    refresh,
     addBox,
     updateBox,
     deleteBox,
+    deleteBoxes,
   }
 }
 

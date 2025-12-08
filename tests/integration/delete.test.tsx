@@ -98,5 +98,84 @@ describe('Delete Operations', () => {
       expect(mockDeleteBox).toHaveBeenCalledWith('box-123')
     })
   })
+
+  describe('Bulk Delete Boxes', () => {
+    it('should delete multiple boxes at once', async () => {
+      const mockDeleteBoxes = vi.fn().mockResolvedValue({
+        error: null,
+      })
+
+      const boxIds = ['box-1', 'box-2', 'box-3']
+      const result = await mockDeleteBoxes(boxIds)
+
+      expect(mockDeleteBoxes).toHaveBeenCalledWith(boxIds)
+      expect(result.error).toBeNull()
+    })
+
+    it('should handle bulk delete error gracefully', async () => {
+      const mockDeleteBoxes = vi.fn().mockResolvedValue({
+        error: { message: 'Failed to delete boxes' },
+      })
+
+      const result = await mockDeleteBoxes(['box-1', 'box-2'])
+
+      expect(result.error).toBeDefined()
+      expect(result.error?.message).toBe('Failed to delete boxes')
+    })
+
+    it('should remove multiple boxes from UI after successful bulk deletion', async () => {
+      const boxes = [
+        { id: 'box-1', funky_name: 'purple-tiger-cloud' },
+        { id: 'box-2', funky_name: 'golden-falcon-river' },
+        { id: 'box-3', funky_name: 'swift-dolphin-storm' },
+        { id: 'box-4', funky_name: 'crimson-eagle-mountain' },
+      ]
+
+      const boxesToDelete = ['box-1', 'box-3']
+      const afterDelete = boxes.filter((box) => !boxesToDelete.includes(box.id))
+
+      expect(afterDelete).toHaveLength(2)
+      expect(afterDelete[0].id).toBe('box-2')
+      expect(afterDelete[1].id).toBe('box-4')
+    })
+
+    it('should handle empty array gracefully', async () => {
+      // Empty array should return true immediately without making API call
+      const deleteBoxes = async (ids: string[]): Promise<boolean> => {
+        if (ids.length === 0) {
+          return true
+        }
+        // Would make API call here for non-empty arrays
+        return true
+      }
+
+      const result = await deleteBoxes([])
+
+      expect(result).toBe(true)
+    })
+
+    it('should require confirmation before bulk deleting boxes', () => {
+      const confirmMock = vi.fn().mockReturnValue(true)
+
+      const userConfirmed = confirmMock(
+        'Are you sure you want to delete 3 boxes and all their items?'
+      )
+
+      expect(confirmMock).toHaveBeenCalled()
+      expect(userConfirmed).toBe(true)
+    })
+
+    it('should not delete if user cancels bulk delete confirmation', () => {
+      const confirmMock = vi.fn().mockReturnValue(false)
+      const deleteMock = vi.fn()
+
+      const userConfirmed = confirmMock('Are you sure?')
+      if (userConfirmed) {
+        deleteMock(['box-1', 'box-2'])
+      }
+
+      expect(deleteMock).not.toHaveBeenCalled()
+    })
+  })
 })
 

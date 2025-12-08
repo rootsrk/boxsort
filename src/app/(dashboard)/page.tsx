@@ -8,17 +8,20 @@ import { BoxGrid } from '@/components/boxes/box-grid'
 import { AddBoxDialog } from '@/components/boxes/add-box-dialog'
 import { PrintQRSheet } from '@/components/boxes/print-qr-sheet'
 import { Button } from '@/components/ui/button'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useBoxes } from '@/lib/hooks/use-boxes'
 import { useUser } from '@/lib/hooks/use-user'
 import type { Box } from '@/lib/supabase/types'
 
 export default function DashboardPage() {
   const { household, loading: userLoading } = useUser()
-  const { boxes, loading: boxesLoading, addBox } = useBoxes(household?.id ?? null)
+  const { boxes, loading: boxesLoading, addBox, deleteBoxes } = useBoxes(household?.id ?? null)
   
   const [selectMode, setSelectMode] = useState(false)
   const [selectedBoxes, setSelectedBoxes] = useState<string[]>([])
   const [showPrintSheet, setShowPrintSheet] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   function toggleSelectMode() {
     if (selectMode) {
@@ -53,6 +56,23 @@ export default function DashboardPage() {
   function handlePrintSelected() {
     if (selectedBoxes.length > 0) {
       setShowPrintSheet(true)
+    }
+  }
+
+  async function handleDeleteSelected() {
+    if (selectedBoxes.length === 0) return
+    
+    setDeleting(true)
+    try {
+      await deleteBoxes(selectedBoxes)
+      setSelectedBoxes([])
+      setSelectMode(false)
+      setShowDeleteConfirm(false)
+    } catch (error) {
+      console.error('Failed to delete boxes:', error)
+      // Error is handled by the hook and will be displayed
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -114,6 +134,14 @@ export default function DashboardPage() {
               >
                 Print ({selectedBoxes.length})
               </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={selectedBoxes.length === 0 || deleting}
+              >
+                {deleting ? 'Deleting...' : `Delete (${selectedBoxes.length})`}
+              </Button>
               <Button variant="ghost" size="sm" onClick={toggleSelectMode}>
                 Cancel
               </Button>
@@ -122,7 +150,7 @@ export default function DashboardPage() {
             <>
               {boxes.length > 0 && (
               <Button variant="outline" onClick={toggleSelectMode}>
-                Select to Print
+                Bulk Edit
               </Button>
               )}
               <AddBoxDialog onAddBox={handleAddBox} />
@@ -142,6 +170,22 @@ export default function DashboardPage() {
       {showPrintSheet && (
         <PrintQRSheet boxes={selectedBoxData} onClose={() => setShowPrintSheet(false)} />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        title="Delete Boxes"
+        description={
+          selectedBoxes.length === 1
+            ? `Are you sure you want to delete this box and all its items? This action cannot be undone.`
+            : `Are you sure you want to delete ${selectedBoxes.length} boxes and all their items? This action cannot be undone.`
+        }
+        confirmLabel="Delete"
+        variant="destructive"
+        onConfirm={handleDeleteSelected}
+        loading={deleting}
+      />
     </div>
   )
 }

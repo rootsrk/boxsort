@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useReducedMotion } from '@/lib/hooks/use-reduced-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { getBoxColor, getLightColor } from '@/lib/utils/box-colors'
 import type { Box } from '@/lib/supabase/types'
 
 interface BoxCardProps {
@@ -14,12 +15,18 @@ interface BoxCardProps {
 
 export function BoxCard({ box, onSelect, selected }: BoxCardProps) {
   const prefersReducedMotion = useReducedMotion()
+  const boxColor = getBoxColor(box.id)
+  const lightColor = getLightColor(boxColor, 0.15)
 
   const cardContent = (
     <Card
       className={`cursor-pointer transition-all hover:shadow-md hover:border-primary/50 ${
         selected ? 'ring-2 ring-primary' : ''
       }`}
+      style={{
+        borderColor: boxColor,
+        backgroundColor: lightColor,
+      }}
       onClick={(e) => {
         if (onSelect) {
           e.preventDefault()

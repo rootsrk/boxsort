@@ -17,6 +17,7 @@ interface ItemCardProps {
 
 export function ItemCard({ item, boxId, householdId, onDelete }: ItemCardProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [imageError, setImageError] = useState(false)
   const { getSignedUrl } = useItemImage()
   const supabase = createBrowserClient()
 
@@ -24,13 +25,20 @@ export function ItemCard({ item, boxId, householdId, onDelete }: ItemCardProps) 
     async function loadImage() {
       if (!item.image_url) {
         setImageUrl(null)
+        setImageError(false)
         return
       }
 
-      // Get signed URL for private bucket
-      const signedUrl = await getSignedUrl(item.image_url, householdId)
-      if (signedUrl) {
-        setImageUrl(signedUrl)
+      try {
+        // Get signed URL for private bucket
+        const signedUrl = await getSignedUrl(item.image_url, householdId)
+        if (signedUrl) {
+          setImageUrl(signedUrl)
+          setImageError(false)
+        }
+      } catch (error) {
+        console.error('Failed to load image:', error)
+        setImageError(true)
       }
     }
 
@@ -60,15 +68,17 @@ export function ItemCard({ item, boxId, householdId, onDelete }: ItemCardProps) 
     <div
       className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow bg-card"
       data-testid="item-card"
+      data-item-id={item.id}
     >
       <Link href={`/boxes/${boxId}?item=${item.id}`} className="block">
         <div className="aspect-square relative bg-muted/50">
-          {imageUrl ? (
+          {imageUrl && !imageError ? (
             <Image
               src={imageUrl}
               alt={item.name}
               fill
               className="object-cover"
+              onError={() => setImageError(true)}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">

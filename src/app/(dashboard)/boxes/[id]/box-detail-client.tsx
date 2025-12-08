@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { ItemList } from '@/components/items/item-list'
 import { AddItemForm } from '@/components/items/add-item-form'
+import { ItemDetailView } from '@/components/items/item-detail-view'
 import { QRCode } from '@/components/boxes/qr-code'
 import { useItems } from '@/lib/hooks/use-items'
 import { generateFunkyName } from '@/lib/utils/name-generator'
@@ -21,6 +22,7 @@ interface BoxDetailClientProps {
 
 export function BoxDetailClient({ boxId }: BoxDetailClientProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createBrowserClient()
 
   const [box, setBox] = useState<Box | null>(null)
@@ -32,6 +34,12 @@ export function BoxDetailClient({ boxId }: BoxDetailClientProps) {
 
   const { items, loading: itemsLoading, addItem, updateItem, deleteItem } = useItems(boxId)
   const [householdId, setHouseholdId] = useState<string | null>(null)
+
+  // Get selected item from query parameter
+  const selectedItemId = searchParams.get('item')
+  const selectedItem = selectedItemId 
+    ? items.find(item => item.id === selectedItemId)
+    : null
 
   useEffect(() => {
     async function loadBox() {
@@ -171,23 +179,37 @@ export function BoxDetailClient({ boxId }: BoxDetailClientProps) {
       <div className="grid md:grid-cols-3 gap-8">
         {/* Items Section */}
         <div className="md:col-span-2 space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Items</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <AddItemForm onAddItem={addItem} autoFocus householdId={householdId} />
-              <ItemList
-                items={items}
-                loading={itemsLoading}
-                boxId={boxId}
-                householdId={householdId || ''}
-                onDeleteItem={async (id: string) => {
-                  await deleteItem(id)
-                }}
-              />
-            </CardContent>
-          </Card>
+          {selectedItem && householdId ? (
+            <div className="space-y-4">
+              <ItemDetailView item={selectedItem} householdId={householdId} />
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => router.replace(`/boxes/${boxId}`, { scroll: false })}
+                >
+                  Back to Items
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle>Items</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <AddItemForm onAddItem={addItem} autoFocus householdId={householdId} />
+                <ItemList
+                  items={items}
+                  loading={itemsLoading}
+                  boxId={boxId}
+                  householdId={householdId || ''}
+                  onDeleteItem={async (id: string) => {
+                    await deleteItem(id)
+                  }}
+                />
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* QR Code Section */}

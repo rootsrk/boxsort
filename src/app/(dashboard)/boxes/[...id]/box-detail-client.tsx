@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -16,14 +16,15 @@ import { generateFunkyName } from '@/lib/utils/name-generator'
 import { printQRLabels } from '@/lib/utils/qr'
 import type { Box } from '@/lib/supabase/types'
 
-interface BoxDetailClientProps {
-  boxId: string
-}
-
-export function BoxDetailClient({ boxId }: BoxDetailClientProps) {
+export function BoxDetailClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const params = useParams()
   const supabase = createBrowserClient()
+
+  // Handle catch-all route - id is an array, take the first element as the box ID
+  const idParam = params.id as string[] | string
+  const boxId = Array.isArray(idParam) ? idParam[0] : idParam
 
   const [box, setBox] = useState<Box | null>(null)
   const [loading, setLoading] = useState(true)
@@ -33,7 +34,7 @@ export function BoxDetailClient({ boxId }: BoxDetailClientProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isAddItemExpanded, setIsAddItemExpanded] = useState(false)
 
-  const { items, loading: itemsLoading, addItem, deleteItem } = useItems(boxId)
+  const { items, loading: itemsLoading, addItem, deleteItem } = useItems(boxId || null)
   const [householdId, setHouseholdId] = useState<string | null>(null)
 
   // Get selected item from query parameter
@@ -42,6 +43,12 @@ export function BoxDetailClient({ boxId }: BoxDetailClientProps) {
 
   useEffect(() => {
     async function loadBox() {
+      if (!boxId) {
+        setError('Invalid box ID')
+        setLoading(false)
+        return
+      }
+
       const { data, error: fetchError } = await supabase
         .from('boxes')
         .select('*')

@@ -11,11 +11,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 export function JoinHouseholdClient() {
   const params = useParams()
   const pathname = usePathname()
-  // For static export with GitHub Pages (404.html fallback), always extract from actual URL first
   let code = params.code as string
   
-  // For GitHub Pages 404.html fallback, extract actual route from browser URL
-  // This ensures dynamic routes work when accessing URLs directly or refreshing
   if (typeof window !== 'undefined') {
     const pathMatch = window.location.pathname.match(/^\/join\/([^/]+)/)
     if (pathMatch && pathMatch[1] && pathMatch[1] !== 'placeholder') {

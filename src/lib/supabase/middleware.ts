@@ -11,9 +11,6 @@ export async function updateSession(request: NextRequest) {
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!url || !key) {
-    // In middleware, we can't throw errors easily, so log and continue
-    // This should only happen in development if env vars are missing
-    console.error('Missing Supabase environment variables in middleware')
     return supabaseResponse
   }
 

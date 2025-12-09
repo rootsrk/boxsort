@@ -32,8 +32,8 @@ export function ItemDetailView({ item, householdId, boxId, onDelete }: ItemDetai
       await onDelete(item.id)
       // Navigate back to box view after deletion
       router.push(`/boxes/${boxId}`)
-    } catch (error) {
-      console.error('Failed to delete item:', error)
+    } catch {
+      // Error handling is done by the parent component
     } finally {
       setDeleting(false)
       setShowDeleteConfirm(false)
@@ -54,8 +54,7 @@ export function ItemDetailView({ item, householdId, boxId, onDelete }: ItemDetai
           setImageUrl(signedUrl)
           setImageError(false)
         }
-      } catch (error) {
-        console.error('Failed to load image:', error)
+      } catch {
         setImageError(true)
       }
     }

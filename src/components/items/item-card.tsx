@@ -40,8 +40,7 @@ export function ItemCard({ item, boxId, householdId, onDelete }: ItemCardProps) 
           setImageUrl(signedUrl)
           setImageError(false)
         }
-      } catch (error) {
-        console.error('Failed to load image:', error)
+      } catch {
         setImageError(true)
       }
     }
@@ -54,8 +53,8 @@ export function ItemCard({ item, boxId, householdId, onDelete }: ItemCardProps) 
     setDeleting(true)
     try {
       await onDelete(item.id)
-    } catch (error) {
-      console.error('Failed to delete item:', error)
+    } catch {
+      // Error handling is done by the parent component
     } finally {
       setDeleting(false)
       setShowDeleteConfirm(false)

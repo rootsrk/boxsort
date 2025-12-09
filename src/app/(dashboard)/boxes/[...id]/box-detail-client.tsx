@@ -23,12 +23,8 @@ export function BoxDetailClient() {
   const pathname = usePathname()
   const supabase = createBrowserClient()
 
-  // Handle catch-all route - id is an array, take the first element as the box ID
   const idParam = params.id as string[] | string
   const paramBoxId = Array.isArray(idParam) ? idParam[0] : idParam
-  
-  // For GitHub Pages 404.html fallback, extract actual route from browser URL
-  // Use state to ensure reactive updates
   const [boxId, setBoxId] = useState<string | undefined>(paramBoxId)
 
   const [box, setBox] = useState<Box | null>(null)
@@ -46,15 +42,13 @@ export function BoxDetailClient() {
   const selectedItemId = searchParams.get('item')
   const selectedItem = selectedItemId ? items.find((item) => item.id === selectedItemId) : null
 
-  // Extract box ID from URL for GitHub Pages 404.html fallback
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const currentPath = window.location.pathname
       const pathMatch = currentPath.match(/^\/boxes\/([^/]+)/)
-      
+
       if (pathMatch && pathMatch[1] && pathMatch[1] !== 'placeholder') {
         const extractedId = pathMatch[1]
-        // If we're on a 404 page but have a valid route, update the router
         if (pathname === '/_not-found' || pathname === '/404' || paramBoxId === 'placeholder') {
           router.replace(`/boxes/${extractedId}`)
         }

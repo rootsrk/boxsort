@@ -63,7 +63,6 @@ export default function SignupPage() {
         })
 
         if (householdError) {
-          console.error('Household creation error:', householdError)
           // User is created but household failed - they can create one later in settings
         }
 

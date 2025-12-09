@@ -192,7 +192,6 @@ export function useItems(boxId: string | null): UseItemsReturn {
         }))
       )
       if (typeError) {
-        console.error('Failed to assign types to item:', typeError)
         // Continue anyway - item is created, types can be added later
       }
     }

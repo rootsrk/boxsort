@@ -31,8 +31,7 @@ export async function compressImage(
   try {
     const compressedFile = await imageCompression(file, mergedOptions)
     return compressedFile
-  } catch (error) {
-    console.error('Image compression failed:', error)
+  } catch {
     // Return original file if compression fails
     return file
   }

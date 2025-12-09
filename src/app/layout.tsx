@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
-import { RSCErrorHandler } from '@/components/rsc-error-handler'
 import './globals.css'
 
 const geistSans = Geist({
@@ -40,7 +39,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
         suppressHydrationWarning
       >
-        <RSCErrorHandler />
         {children}
       </body>
     </html>

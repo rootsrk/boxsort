@@ -10,13 +10,9 @@ import { Skeleton } from '@/components/ui/skeleton'
 export function PublicBoxClient() {
   const params = useParams()
   const pathname = usePathname()
-  // Handle catch-all route - slug is an array, take the first element as the box ID
-  // For static export with GitHub Pages (404.html fallback), always extract from actual URL first
   const slug = params.slug as string[] | string
   let id = Array.isArray(slug) ? slug[0] : slug
   
-  // For GitHub Pages 404.html fallback, extract actual route from browser URL
-  // This ensures dynamic routes work when accessing URLs directly or refreshing
   if (typeof window !== 'undefined') {
     const pathMatch = window.location.pathname.match(/^\/box\/([^/]+)/)
     if (pathMatch && pathMatch[1] && pathMatch[1] !== 'placeholder') {

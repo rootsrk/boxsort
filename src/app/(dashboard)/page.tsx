@@ -66,8 +66,7 @@ export default function DashboardPage() {
       setSelectedBoxes([])
       setSelectMode(false)
       setShowDeleteConfirm(false)
-    } catch (error) {
-      console.error('Failed to delete boxes:', error)
+    } catch {
       // Error is handled by the hook and will be displayed
     } finally {
       setDeleting(false)

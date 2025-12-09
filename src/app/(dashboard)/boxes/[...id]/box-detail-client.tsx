@@ -24,17 +24,12 @@ export function BoxDetailClient() {
   const supabase = createBrowserClient()
 
   // Handle catch-all route - id is an array, take the first element as the box ID
-  // For static export with GitHub Pages (404.html fallback), fallback to extracting from pathname
   const idParam = params.id as string[] | string
-  let boxId = Array.isArray(idParam) ? idParam[0] : idParam
+  const paramBoxId = Array.isArray(idParam) ? idParam[0] : idParam
   
-  // If params only contains placeholder (due to 404.html fallback), extract from URL
-  if (boxId === 'placeholder' && typeof window !== 'undefined') {
-    const pathMatch = pathname.match(/^\/boxes\/([^/]+)/)
-    if (pathMatch && pathMatch[1] && pathMatch[1] !== 'placeholder') {
-      boxId = pathMatch[1]
-    }
-  }
+  // For GitHub Pages 404.html fallback, extract actual route from browser URL
+  // Use state to ensure reactive updates
+  const [boxId, setBoxId] = useState<string | undefined>(paramBoxId)
 
   const [box, setBox] = useState<Box | null>(null)
   const [loading, setLoading] = useState(true)
@@ -51,14 +46,45 @@ export function BoxDetailClient() {
   const selectedItemId = searchParams.get('item')
   const selectedItem = selectedItemId ? items.find((item) => item.id === selectedItemId) : null
 
+  // Extract box ID from URL for GitHub Pages 404.html fallback
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const currentPath = window.location.pathname
+      const pathMatch = currentPath.match(/^\/boxes\/([^/]+)/)
+      
+      if (pathMatch && pathMatch[1] && pathMatch[1] !== 'placeholder') {
+        const extractedId = pathMatch[1]
+        // If we're on a 404 page but have a valid route, update the router
+        if (pathname === '/_not-found' || pathname === '/404' || paramBoxId === 'placeholder') {
+          router.replace(`/boxes/${extractedId}`)
+        }
+        if (extractedId !== boxId) {
+          setBoxId(extractedId)
+        }
+      } else if (paramBoxId && paramBoxId !== 'placeholder') {
+        setBoxId(paramBoxId)
+      }
+    }
+  }, [paramBoxId, boxId, pathname, router])
+
   useEffect(() => {
     async function loadBox() {
-      if (!boxId) {
+      // Don't proceed if we don't have a valid box ID yet
+      if (!boxId || boxId === 'placeholder') {
+        // Keep loading state if we're still extracting the ID from URL
+        if (typeof window !== 'undefined') {
+          const pathMatch = window.location.pathname.match(/^\/boxes\/([^/]+)/)
+          if (pathMatch && pathMatch[1] && pathMatch[1] !== 'placeholder') {
+            // Still extracting, don't show error yet
+            return
+          }
+        }
         setError('Invalid box ID')
         setLoading(false)
         return
       }
 
+      setLoading(true)
       const { data, error: fetchError } = await supabase
         .from('boxes')
         .select('*')
@@ -70,11 +96,14 @@ export function BoxDetailClient() {
       } else {
         setBox(data)
         setHouseholdId(data?.household_id || null)
+        setError(null)
       }
       setLoading(false)
     }
 
-    loadBox()
+    if (boxId && boxId !== 'placeholder') {
+      loadBox()
+    }
   }, [boxId, supabase])
 
   async function handleRegenerateName() {
@@ -203,7 +232,7 @@ export function BoxDetailClient() {
               <ItemDetailView
                 item={selectedItem}
                 householdId={householdId}
-                boxId={boxId}
+                boxId={boxId!}
                 onDelete={async (id: string) => {
                   await deleteItem(id)
                 }}
@@ -211,7 +240,7 @@ export function BoxDetailClient() {
               <div className="flex justify-end">
                 <Button
                   variant="outline"
-                  onClick={() => router.replace(`/boxes/${boxId}`, { scroll: false })}
+                  onClick={() => boxId && router.replace(`/boxes/${boxId}`, { scroll: false })}
                 >
                   Back to Items
                 </Button>
@@ -289,7 +318,7 @@ export function BoxDetailClient() {
                   <ItemList
                     items={items}
                     loading={itemsLoading}
-                    boxId={boxId}
+                    boxId={boxId || ''}
                     householdId={householdId || ''}
                     onDeleteItem={async (id: string) => {
                       await deleteItem(id)

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { createBrowserClient } from '@/lib/supabase/client'
 import { PublicBoxView } from '@/components/boxes/public-box-view'
 import type { Box, Item } from '@/lib/supabase/types'
@@ -9,9 +9,19 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export function PublicBoxClient() {
   const params = useParams()
+  const pathname = usePathname()
   // Handle catch-all route - slug is an array, take the first element as the box ID
+  // For static export with GitHub Pages, fallback to extracting from pathname
   const slug = params.slug as string[] | string
-  const id = Array.isArray(slug) ? slug[0] : slug
+  let id = Array.isArray(slug) ? slug[0] : slug
+  
+  // If params only contains placeholder (due to 404.html fallback), extract from URL
+  if (id === 'placeholder' && typeof window !== 'undefined') {
+    const pathMatch = pathname.match(/^\/box\/([^/]+)/)
+    if (pathMatch && pathMatch[1] && pathMatch[1] !== 'placeholder') {
+      id = pathMatch[1]
+    }
+  }
   const [box, setBox] = useState<Box | null>(null)
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)

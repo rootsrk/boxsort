@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 export function JoinHouseholdClient() {
   const params = useParams()
-  const code = params.code as string
+  const pathname = usePathname()
+  // For static export with GitHub Pages, fallback to extracting from pathname
+  let code = params.code as string
+  
+  // If params only contains placeholder (due to 404.html fallback), extract from URL
+  if (code === 'placeholder' && typeof window !== 'undefined') {
+    const pathMatch = pathname.match(/^\/join\/([^/]+)/)
+    if (pathMatch && pathMatch[1] && pathMatch[1] !== 'placeholder') {
+      code = pathMatch[1]
+    }
+  }
   const router = useRouter()
   const supabase = createBrowserClient()
 

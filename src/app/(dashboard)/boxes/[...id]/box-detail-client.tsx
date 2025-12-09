@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams, useParams } from 'next/navigation'
+import { useRouter, useSearchParams, useParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -20,11 +20,21 @@ export function BoxDetailClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const params = useParams()
+  const pathname = usePathname()
   const supabase = createBrowserClient()
 
   // Handle catch-all route - id is an array, take the first element as the box ID
+  // For static export with GitHub Pages (404.html fallback), fallback to extracting from pathname
   const idParam = params.id as string[] | string
-  const boxId = Array.isArray(idParam) ? idParam[0] : idParam
+  let boxId = Array.isArray(idParam) ? idParam[0] : idParam
+  
+  // If params only contains placeholder (due to 404.html fallback), extract from URL
+  if (boxId === 'placeholder' && typeof window !== 'undefined') {
+    const pathMatch = pathname.match(/^\/boxes\/([^/]+)/)
+    if (pathMatch && pathMatch[1] && pathMatch[1] !== 'placeholder') {
+      boxId = pathMatch[1]
+    }
+  }
 
   const [box, setBox] = useState<Box | null>(null)
   const [loading, setLoading] = useState(true)

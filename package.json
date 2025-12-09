@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node scripts/copy-404.js",
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

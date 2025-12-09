@@ -113,7 +113,8 @@ body {
     page-break-inside: avoid;
     break-inside: avoid;
     border: 1px solid #ddd !important;
-    margin: 4px !important;
+    margin: 8px !important;
+    padding: 1rem !important;
   }
 
   /* Grid layout for print */
@@ -121,6 +122,26 @@ body {
     display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important;
     gap: 1rem !important;
+    padding: 1rem !important;
+  }
+
+  /* Ensure print-only containers have sufficient padding */
+  .print-only {
+    padding: 2rem !important;
+  }
+
+  /* Single QR print (from box detail page) - ensure adequate padding */
+  .print-only.fixed {
+    padding: 2rem !important;
+  }
+
+  .print-only.fixed > div {
+    padding: 2rem !important;
+  }
+
+  /* Print QR sheet container padding */
+  body.print-mode .fixed.inset-0 > div:not(.no-print) {
+    padding: 2rem !important;
   }
 }
 

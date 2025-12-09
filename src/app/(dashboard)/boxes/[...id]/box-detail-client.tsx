@@ -348,7 +348,9 @@ export function BoxDetailClient() {
 
       {/* Print-only QR */}
       <div className="print-only fixed inset-0 flex items-center justify-center bg-white">
-        <QRCode boxId={box.id} boxName={box.funky_name} size={300} />
+        <div className="p-8">
+          <QRCode boxId={box.id} boxName={box.funky_name} size={300} />
+        </div>
       </div>
 
       {/* Delete Confirmation Dialog */}
